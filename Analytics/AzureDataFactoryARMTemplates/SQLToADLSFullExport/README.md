@@ -1,17 +1,17 @@
 # Overview 
 
-SQLToADLS is a generic sample solution to export SQLServer (on-premise or Azure SQL) tables data to Azure Data lake Gen 2 storage account in [Common data model](https://docs.microsoft.com/en-us/common-data-model/) format. Solution utilize Azure data factory pipelines and Azure function based on [CDM SDK](https://github.com/microsoft/CDM/tree/master/objectModel/CSharp) to copy SQL tables data and generate CDM metadata to Azure storage account.  
+SQLToADLS is a generic sample solution to export SQL Server (on-premises or Azure SQL) tables data to Azure Data Lake Gen 2 storage account in [Common data model](https://docs.microsoft.com/en-us/common-data-model/) format. The solution utilizes Azure Data Factory pipelines and Azure Function based on [CDM SDK](https://github.com/microsoft/CDM/tree/master/objectModel/CSharp) to copy SQL tables data to and generate CDM metadata in an Azure storage account.  
 
 # Use cases
-You can use this Data factory solution  for following use cases
-1. Ingest on-premise SQL Database or Azure SQL database to Azure data lake in CDM format
-2. Ingest your on-premise Dynamics AX data to Azure data lake in CDM format
-3. Ingest Finance and Operations app data from Cloud Hosted Dev Environment or Tier 2 environment to Azure data lake in CDM format (A workaround to [Tables in Data Lake](https://docs.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/data-entities/finance-data-azure-data-lake) feature to build POC)
+You can use this Data factory solution for the following use cases:
+1. Ingest on-premises SQL Database or Azure SQL database contents to Azure Data Lake in CDM format
+2. Ingest your on-premises Dynamics AX data to Azure Data Lake in CDM format
+3. Ingest Finance and Operations app data from a Cloud Hosted Environment (Tier 1) or a Tier 2 environment to Azure Data Lake in CDM format (A workaround to [Tables in Data Lake](https://docs.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/data-entities/finance-data-azure-data-lake) feature to build POC)
 
 # SQLToADLS Full Export Highlights  
-SQLToADLS solution generate folder structure, data and metadata similar to F&O Export to data lake feature. Following are some highlights of this 
+SQLToADLS solution generates folder structure, data, and metadata similar to the F&O Export to Data Lake feature. Following are some highlights: 
 
-1. Export F&O Tables data to Azure data lake.
+1. Export F&O tables data to Azure Data Lake.
 2. Automatically partition data for large tables.  
 3. Geneate [CDM metadata](https://docs.microsoft.com/en-us/common-data-model/cdm-manifest).  
 
@@ -24,14 +24,14 @@ SQLToADLS solution generate folder structure, data and metadata similar to F&O E
 # Deployment steps
 
 ## Deploy C# Solution as Azure function 
-[Deploy CDMUtil as Azure Function App](/Analytics/CDMUtilSolution/deploycdmutil.md) as per the instruction.
+[Deploy CDMUtil as Azure Function App](/Analytics/CDMUtilSolution/deploycdmutil.md) as per the instructions.
 
 ## Collect Azure Data Factory Deployment Parameters 
-Once Azure function is deployed and Storage account is ready, collect all the parameters as described bellow 
+Once Azure function is deployed and the storage account is configured, collect all the parameters as described below 
 1. Login to Azure portal and navigate to Azure Storage account and notedown following  
    - **Storage account>Properties>Data Lake storage>Primary endpoint Data Lake storage** - example https://yourdatalakestoraheURU.dfs.core.windows.net/
    - **Storage account> Access keys > Key1> Key** - example XXXXXXXXXXXXXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXXXXX== 
-2. Note down Azure data factory name that you created earlier
+2. Note down Azure Data Factory name that you created earlier
 3. Note down your **Source SQL server database** connection string - ex data source=dbserver;initial catalog=axdb;user id=sqladmin;password=PassWord. 
 4. Navigate to Function App Deployed earlier steps and Notedown Azure function ***URL : Function App > Overview > URL***  example:https://msftcdmutilazurefunction.azurewebsites.net 
 and  Function ***App Key: Function App > App Keys > Host Keys> Value (Name= _master)***  
@@ -59,23 +59,23 @@ and  Function ***App Key: Function App > App Keys > Host Keys> Value (Name= _mas
 5. Provide required parameters and Review + create. 
 ![Custom deployment](/Analytics/AzureDataFactoryARMTemplates/SQLToADLSFullExport/CustomDeployment_LI.jpg)
 
-## Connecting to Finance and Operations Cloud Hosted Tier 1 Environment or Sandbox Tier 2 
+## Connecting to Finance and Operations Cloud Hosted Environment (Tier 1) or Sandbox Tier 2 
 If your source system is Dynamics 365 for **Finance and Operations Cloud Hosteed Dev or Tier 2 environment**. 
-You can get the database connection details from Life Cycle Services Environment details page. 
+you can get the database connection details from Life Cycle Services Environment details page. 
 You would need **Environment Manager or Project Owner access** in LCS to see the database connection details. 
 
-### Cloud Hosted Tier 1 environment  
-1. To Connect Azure data factory to Dynamics 365 for Finance and Operations Cloud Hosted Development environment 
-you need to create **Self-Hosted integration runtime** for your Azure data factory.
+### Cloud Hosted Environment (Tier 1)  
+1. To Connect Azure data factory to Dynamics 365 for Finance and Operations Cloud Hosted Environment (Tier 1)
+You need to create **Self-Hosted integration runtime** for your Azure Data Factory.
 2. Follow the documentation link to install and configure Self-Hosted Integration runtime on the VM 
 [Create a Self-hosted integration runtime](https://docs.microsoft.com/en-us/azure/data-factory/create-self-hosted-integration-runtime#create-a-self-hosted-ir-via-azure-data-factory-ui) 
 3. Change the integration runtime for your SQLServerDB link services, validate connection and deploy changes to your data factory.  
 
-### Connecting to Tier 2 environment 
-1. To connect Azure data factory to tier 2 environment you dont need Self-Hosted Integration Runtime as Tier 2 envirinment uses Azure SQL
-2. However Tier 2 Azure SQL Database are firewall enabled so you have to whitelist the IP address of Azure data factory to connect
+### Connecting to a Tier 2 environment 
+1. To connect Azure Data Factory to Tier 2 environment you dont need Self-Hosted Integration Runtime as Tier 2 environment uses Azure SQL
+2. However Tier 2 Azure SQL Databases are firewall-enabled so you have to whitelist the IP address of Azure Data Factory to connect
 3. Follow the documentation [Connecting to Tier 2 database](/Analytics/AzureDataFactoryARMTemplates/SQLToADLSFullExport/ConnectingAFDtoSelf_ServiceDeploymentv2.docx) .
-Note that Self-Service database connections are only valid for 8 hours. So you have to updated the database crededential in the Data factory connection before excutin
+Note that Self-Service database connections are only valid for 8 hours. So you have to updated the database crededential in the data factory connection before executing.
 
 ## Execute pipeline to export data and CDM metadata
 Once Azure data factory template deployed successfully, navigate to Azure Data Factory solution and execute pipelines
@@ -95,5 +95,5 @@ Once you created views on SQL-On-Demand to read your tables data stored in data 
 
 # Troubleshooting 
 1. If your pipleline fails on the Azure function calls, validate your Azure function configuration.
-2. you can also debug C# code by running the CDMUtil_AzureFunctions locally and PostMan - Postman template can be found under /SQLToADLSFullExport/CDMUtil.postman_collection you can find input parameters for Azure function in Azure data factory pipeline execution history. 
+2. you can also debug C# code by running the CDMUtil_AzureFunctions locally and PostMan - Postman template can be found under /SQLToADLSFullExport/CDMUtil.postman_collection you can find input parameters for Azure function in Azure Data Factory pipeline execution history. 
 
